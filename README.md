@@ -1,35 +1,20 @@
 # aws-vpn-client
 
-This is PoC to connect to the AWS Client VPN with OSS OpenVPN using SAML
-authentication. Tested on macOS and Linux, should also work on other POSIX OS with a minor changes.
+_Forked from https://github.com/samm-git/aws-vpn-client_
 
-See [my blog post](https://smallhacks.wordpress.com/2020/07/08/aws-client-vpn-internals/) for the implementation details.
+## Usage
 
-## Content of the repository
-
-- [openvpn-v2.4.9-aws.patch](openvpn-v2.4.9-aws.patch) - patch required to build
-AWS compatible OpenVPN v2.4.9, based on the
-[AWS source code](https://amazon-source-code-downloads.s3.amazonaws.com/aws/clientvpn/osx-v1.2.5/openvpn-2.4.5-aws-2.tar.gz) (thanks to @heprotecbuthealsoattac) for the link.
-- [server.go](server.go) - Go server to listed on http://127.0.0.1:35001 and save
-SAML Post data to the file
-- [aws-connect.sh](aws-connect.sh) - bash wrapper to run OpenVPN. It runs OpenVPN first time to get SAML Redirect and open browser and second time with actual SAML response
-
-## How to use
-
-1. Build patched openvpn version and put it to the folder with a script
-1. Start HTTP server with `go run server.go`
-1. Set VPN_HOST in the [aws-connect.sh](aws-connect.sh)
-1. Replace CA section in the sample [vpn.conf](vpn.conf) with one from your AWS configuration
-1. Finally run `aws-connect.sh` to connect to the AWS.
-
-### Additional Steps
-
-Inspect your ovpn config and remove the following lines if present
-- `auth-user-pass` (we dont want to show user prompt)
-- `auth-federate` (do not retry on failures)
-- `auth-retry interact` (propietary AWS keyword)
-- `remote` and `remote-random-hostname` (already handled in CLI and can cause conflicts with it)
-
-## Todo
-
-Better integrate SAML HTTP server with a script or rewrite everything on golang
+1. Clone this repository
+2. Download the openvpn client configuration from the self-service portal
+3. Copy it into the root of this repo, renaming it to `vpn.conf`
+4. Run `docker-compose up --build`
+5. Follow the link to sign in with SSO
+    ```
+    aws-vpn-client | Open this URL in your browser and log in (ctrl + click):
+    aws-vpn-client | https://...........
+    ```
+6. Sign in if you do not already have an active session
+7. You should see the VPN connected successfully with the final log line as below. If you don't, try again, it's a bit flaky
+    ```
+    aws-vpn-client | 2021-04-30 13:33:37 Initialization Sequence Completed
+    ```
