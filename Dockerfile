@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as builder
+FROM ubuntu:groovy-20210614 as builder
 
 WORKDIR /
 
@@ -36,7 +36,7 @@ COPY server.go .
 
 RUN go build server.go
 
-FROM ubuntu:20.04
+FROM ubuntu:groovy-20210614
 
 RUN apt-get update && \
     apt-get install -y \
